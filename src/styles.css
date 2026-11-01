@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Manual theme toggle: `dark:` follows the .dark class on <html> (set from
+   localStorage / system preference by an inline script), not the media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Design tokens from the `ink & thought` PRD (section 3.1 / 5).
+  Chosen for luminance contrast so protanopia / deuteranopia / tritanopia
+  readers don't have to rely on hue alone. Status & active states in this
+  theme always pair colour with a text label, weight, or border change.
+*/
+@theme {
+  --color-periwinkle: #b2abf2;
+  --color-deep: #1c3041;
+  --color-deep-light: #2c4a63;
+  --color-deep-muted: #3a546c;
+  --color-ink: #101d29;
+  --color-amaranth: #89043d;
+  --color-amaranth-bright: #f26ba1;
+  --color-amaranth-pale: #ff8ab8;
+  --color-turquoise: #2fe6de;
+  --color-mint: #18f2b2;
+  --color-mint-pale: #8ef7e0;
+  --color-mist: #7d8ea3;
+  --color-mist-dim: #5d7285;
+  --color-paper: #f7f9ff;
+  --color-paper-soft: #edf4ff;
+  --color-night: #0b141c;
+  --color-night-card: #141c25;
+  --color-night-soft: #1a2430;
+  --color-code: #060f17;
+  --color-silver: #cbd6e2;
+
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", ui-sans-system, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-paper font-sans text-ink antialiased dark:bg-night dark:text-silver;
+}
+
+::selection {
+  background: var(--color-periwinkle);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-periwinkle);
+  outline-offset: 3px;
+}
+
+/* ----- Editorial prose (the article itself) ----- */
+.article-prose {
+  font-family: var(--font-serif);
+  font-size: 1.1875rem; /* PRD: Newsreader 19px / 1.75 */
+  line-height: 1.75;
+  letter-spacing: -0.005em;
+
+  --tw-prose-body: #101d29;
+  --tw-prose-headings: #1c3041;
+  --tw-prose-lead: #3a546c;
+  --tw-prose-links: #2c4a63;
+  --tw-prose-bold: #1c3041;
+  --tw-prose-counters: #5d7285;
+  --tw-prose-bullets: #b2abf2;
+  --tw-prose-hr: #7d8ea3;
+  --tw-prose-quotes: #2c4a63;
+  --tw-prose-quote-borders: #b2abf2;
+  --tw-prose-captions: #5d7285;
+  --tw-prose-code: #89043d;
+  --tw-prose-pre-code: #edf4ff;
+  --tw-prose-pre-bg: #1c3041;
+  --tw-prose-th-borders: #7d8ea3;
+  --tw-prose-td-borders: #7d8ea3;
+}
+
+.dark .article-prose {
+    --tw-prose-body: #cbd6e2;
+    --tw-prose-headings: #edf4ff;
+    --tw-prose-lead: #cbd6e2;
+    --tw-prose-links: #b2abf2;
+    --tw-prose-bold: #edf4ff;
+    --tw-prose-counters: #7d8ea3;
+    --tw-prose-bullets: #b2abf2;
+    --tw-prose-hr: #2c4a63;
+    --tw-prose-quotes: #cbd6e2;
+    --tw-prose-quote-borders: #b2abf2;
+    --tw-prose-captions: #7d8ea3;
+    --tw-prose-code: #f26ba1;
+    --tw-prose-pre-code: #edf4ff;
+    --tw-prose-pre-bg: #060f17;
+    --tw-prose-th-borders: #2c4a63;
+    --tw-prose-td-borders: #2c4a63;
+  }
+
+.article-prose :where(h2, h3) {
+  scroll-margin-top: 6rem;
+}
+
+/* Code follows the PRD mono scale (13-14px), not the 19px prose size.
+   Use rem so it stays at that absolute scale regardless of prose size. */
+.article-prose :where(pre) {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.65;
+}
+
+.article-prose :where(:not(pre) > code) {
+  font-size: 0.8125rem; /* 13px inline */
+}
+
+.article-prose a {
+  text-decoration-color: var(--color-periwinkle);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* ----- Outline (table of contents) ----- */
+.outline-link {
+  border-left: 2px solid transparent;
+}
+
+.outline-active {
+  border-left-color: var(--color-periwinkle);
+  background: color-mix(in srgb, var(--color-periwinkle) 14%, transparent);
+  color: var(--color-deep);
+  font-weight: 600;
+}
+
+.dark .outline-active {
+  color: var(--color-paper-soft);
+}
