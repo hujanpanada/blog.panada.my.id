@@ -47,6 +47,12 @@ body {
   @apply bg-paper font-sans text-ink antialiased selection:bg-periwinkle selection:text-ink dark:bg-night dark:text-silver;
 }
 
+/* Ensure interactive elements feel responsive and clean on touch/tap */
+a, button, summary, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-periwinkle);
   outline-offset: 3px;
@@ -137,21 +143,35 @@ body {
   text-decoration-color: var(--color-periwinkle);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 4px;
-  transition: text-decoration-color 0.15s ease;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
 }
 
-.article-prose a:hover {
+.article-prose a:hover,
+.article-prose a:active {
   text-decoration-color: var(--color-deep);
+  color: var(--color-deep);
 }
 
-.dark .article-prose a:hover {
+.dark .article-prose a:hover,
+.dark .article-prose a:active {
   text-decoration-color: var(--color-paper-soft);
+  color: var(--color-paper-soft);
 }
 
 /* ----- Outline (table of contents) ----- */
 .outline-link {
   border-left: 2px solid transparent;
   transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.outline-link:hover,
+.outline-link:active {
+  color: var(--color-deep);
+}
+
+.dark .outline-link:hover,
+.dark .outline-link:active {
+  color: var(--color-paper-soft);
 }
 
 .outline-active {

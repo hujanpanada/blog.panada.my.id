@@ -64,12 +64,13 @@ const THEME_INIT = `<script>
       document.documentElement.classList.add("dark");
     }
   } catch {}
+  document.addEventListener("touchstart", () => {}, { passive: true });
 </script>`;
 
 // Header theme toggle (every page): switch .dark on <html>, persist the
 // choice. Crisp SVG icons swap smoothly with CSS dark: variant;
 // the button carries an aria-label and visually-hidden text.
-const THEME_TOGGLE = `<button type="button" data-theme-toggle aria-label="Aktifkan mode gelap" class="inline-flex h-8 w-8 items-center justify-center rounded-md text-mist-dim transition-colors hover:bg-mist/10 hover:text-deep focus-visible:outline-2 focus-visible:outline-periwinkle dark:text-mist dark:hover:bg-night-soft dark:hover:text-paper-soft" title="Ganti mode tampilan">
+const THEME_TOGGLE = `<button type="button" data-theme-toggle aria-label="Aktifkan mode gelap" class="inline-flex h-8 w-8 items-center justify-center rounded-md text-mist-dim transition-all hover:bg-mist/10 hover:text-deep active:bg-mist/20 active:text-deep active:scale-95 focus-visible:outline-2 focus-visible:outline-periwinkle dark:text-mist dark:hover:bg-night-soft dark:hover:text-paper-soft dark:active:bg-night-soft/80 dark:active:text-paper-soft" title="Ganti mode tampilan">
   <svg data-theme-icon-sun class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <circle cx="12" cy="12" r="4"></circle>
     <path d="M12 2v2"></path>
@@ -199,9 +200,9 @@ ${FONT_LINK}
 <div>
   <header class="border-b border-mist/20 dark:border-night-soft">
     <div class="mx-auto flex ${containerClass} items-center justify-between px-6 py-5">
-      <a href="/" class="font-serif text-lg font-medium tracking-tight text-deep transition-colors hover:text-deep-light dark:text-paper-soft dark:hover:text-periwinkle">${esc(SITE.title)}</a>
+      <a href="/" class="font-serif text-lg font-medium tracking-tight text-deep transition-colors hover:text-deep-light active:text-deep-light dark:text-paper-soft dark:hover:text-periwinkle dark:active:text-periwinkle">${esc(SITE.title)}</a>
       <nav class="flex items-center gap-4">
-        <a href="/" class="font-sans text-xs font-medium tracking-wide text-mist-dim transition-colors hover:text-deep dark:text-mist dark:hover:text-paper-soft">Tulisan</a>
+        <a href="/" class="font-sans text-xs font-medium tracking-wide text-mist-dim transition-colors hover:text-deep active:text-deep dark:text-mist dark:hover:text-paper-soft dark:active:text-paper-soft">Tulisan</a>
         ${THEME_TOGGLE}
       </nav>
     </div>
@@ -356,7 +357,7 @@ const cards = posts
         <span>${p.minutes} mnt baca</span>
       </div>
       <h2 class="mt-2 font-serif text-2xl font-medium tracking-tight text-deep dark:text-paper-soft">
-        <a href="/p/${p.slug}" class="transition-colors duration-150 hover:text-deep-light dark:hover:text-periwinkle">
+        <a href="/p/${p.slug}" class="transition-colors duration-150 hover:text-deep-light active:text-deep-light dark:hover:text-periwinkle dark:active:text-periwinkle">
           ${esc(p.title)}
         </a>
       </h2>
@@ -398,28 +399,28 @@ for (const p of posts) {
     ? `<nav aria-label="Daftar isi artikel" class="mt-6 border-l border-mist/20 pl-3 dark:border-night-soft">
         <p class="font-mono text-xs font-medium tracking-wider text-mist-dim uppercase dark:text-mist">Daftar Isi</p>
         <ul class="mt-3 space-y-1 text-xs">
-${p.outline.map((o) => `          <li><a data-outline-link href="#${o.id}" class="outline-link block py-1 pr-2 text-deep-muted transition-colors hover:text-deep dark:text-silver/75 dark:hover:text-paper-soft ${o.depth === 3 ? "pl-3" : ""}">${esc(o.text)}</a></li>`).join("\n")}
+${p.outline.map((o) => `          <li><a data-outline-link href="#${o.id}" class="outline-link block py-1 pr-2 text-deep-muted transition-colors hover:text-deep active:text-deep dark:text-silver/75 dark:hover:text-paper-soft dark:active:text-paper-soft ${o.depth === 3 ? "pl-3" : ""}">${esc(o.text)}</a></li>`).join("\n")}
         </ul>
       </nav>`
     : "";
 
   const rail = hasOutline
     ? `<aside class="mb-10 lg:sticky lg:top-20 lg:mb-0 lg:self-start">
-    <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">
-      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+    <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep active:text-deep dark:text-periwinkle dark:hover:text-paper-soft dark:active:text-paper-soft">
+      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5 group-active:-translate-x-0.5">←</span>
       <span>Semua tulisan</span>
     </a>
     <div class="mt-6 hidden lg:block">
       ${outlineNav}
     </div>
     <details class="mt-6 lg:hidden">
-      <summary class="cursor-pointer font-mono text-xs font-medium text-mist-dim dark:text-mist">Daftar isi artikel</summary>
+      <summary class="cursor-pointer font-mono text-xs font-medium text-mist-dim transition-colors hover:text-deep active:text-deep dark:text-mist dark:hover:text-paper-soft dark:active:text-paper-soft">Daftar isi artikel</summary>
       ${outlineNav}
     </details>
   </aside>`
     : `<div class="mb-8">
-    <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">
-      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+    <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep active:text-deep dark:text-periwinkle dark:hover:text-paper-soft dark:active:text-paper-soft">
+      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5 group-active:-translate-x-0.5">←</span>
       <span>Semua tulisan</span>
     </a>
   </div>`;
@@ -450,8 +451,8 @@ ${p.html}
     </div>
     <footer class="mt-16 border-t border-mist/20 pt-8 dark:border-night-soft">
       <div class="flex items-center justify-between">
-        <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">
-          <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+        <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep active:text-deep dark:text-periwinkle dark:hover:text-paper-soft dark:active:text-paper-soft">
+          <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5 group-active:-translate-x-0.5">←</span>
           <span>Kembali ke beranda</span>
         </a>
         <span class="font-serif text-xs italic text-mist-dim dark:text-mist">${esc(SITE.title)}</span>
@@ -474,8 +475,8 @@ fs.writeFileSync(
     <h1 class="mt-3 font-serif text-3xl sm:text-4xl font-medium tracking-tight text-deep dark:text-paper-soft">Halaman tidak ditemukan</h1>
     <p class="mt-3 text-sm leading-relaxed text-deep-muted dark:text-silver/80">Halaman yang kamu cari mungkin sudah berpindah atau belum ditulis.</p>
     <div class="mt-8">
-      <a href="/" class="group inline-flex items-center gap-2 rounded-lg border border-mist/30 px-4 py-2 font-mono text-xs font-medium text-deep transition-colors hover:border-periwinkle hover:text-deep-light dark:border-night-soft dark:text-silver dark:hover:border-periwinkle dark:hover:text-paper-soft">
-        <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+      <a href="/" class="group inline-flex items-center gap-2 rounded-lg border border-mist/30 px-4 py-2 font-mono text-xs font-medium text-deep transition-all hover:border-periwinkle hover:text-deep-light active:border-periwinkle active:text-deep-light active:scale-95 dark:border-night-soft dark:text-silver dark:hover:border-periwinkle dark:hover:text-paper-soft dark:active:border-periwinkle dark:active:text-paper-soft">
+        <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5 group-active:-translate-x-0.5">←</span>
         <span>Kembali ke beranda</span>
       </a>
     </div>
