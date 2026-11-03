@@ -67,22 +67,33 @@ const THEME_INIT = `<script>
 </script>`;
 
 // Header theme toggle (every page): switch .dark on <html>, persist the
-// choice. Sun/moon emoji swap with the mode; the button carries an
-// aria-label (and visually-hidden text) naming the target mode, so the
-// control stays understandable without relying on the glyph alone.
-const THEME_TOGGLE = `<button type="button" data-theme-toggle aria-label="Aktifkan mode gelap" class="text-base leading-none decoration-periwinkle decoration-2 underline-offset-4 hover:underline"><span aria-hidden="true" data-theme-icon>☀️</span><span class="sr-only" data-theme-text>Aktifkan mode gelap</span></button>`;
+// choice. Crisp SVG icons swap smoothly with CSS dark: variant;
+// the button carries an aria-label and visually-hidden text.
+const THEME_TOGGLE = `<button type="button" data-theme-toggle aria-label="Aktifkan mode gelap" class="inline-flex h-8 w-8 items-center justify-center rounded-md text-mist-dim transition-colors hover:bg-mist/10 hover:text-deep focus-visible:outline-2 focus-visible:outline-periwinkle dark:text-mist dark:hover:bg-night-soft dark:hover:text-paper-soft" title="Ganti mode tampilan">
+  <svg data-theme-icon-sun class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2"></path>
+    <path d="M12 20v2"></path>
+    <path d="m4.93 4.93 1.41 1.41"></path>
+    <path d="m17.66 17.66 1.41 1.41"></path>
+    <path d="M2 12h2"></path>
+    <path d="M20 12h2"></path>
+    <path d="m6.34 17.66-1.41 1.41"></path>
+    <path d="m19.07 4.93-1.41 1.41"></path>
+  </svg>
+  <svg data-theme-icon-moon class="block h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+  <span class="sr-only" data-theme-text>Aktifkan mode gelap</span>
+</button>`;
 
 const THEME_SCRIPT = `<script>
 (() => {
   const btn = document.querySelector("[data-theme-toggle]");
   if (!btn) return;
-  const icon = btn.querySelector("[data-theme-icon]");
   const text = btn.querySelector("[data-theme-text]");
   const sync = () => {
     const dark = document.documentElement.classList.contains("dark");
-    // The emoji shows the CURRENT mode (sun = light, moon = dark), while
-    // the accessible label still names the mode you switch TO on click.
-    if (icon) icon.textContent = dark ? "🌙" : "☀️";
     const label = dark ? "Aktifkan mode terang" : "Aktifkan mode gelap";
     btn.setAttribute("aria-label", label);
     if (text) text.textContent = label;
@@ -117,7 +128,7 @@ const OUTLINE_SCRIPT = `<script>
     for (const e of entries) e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id);
     const first = [...byId.keys()].find((id) => visible.has(id));
     if (first) setActive(first);
-  }, { rootMargin: "-96px 0px -65% 0px" });
+  }, { rootMargin: "-80px 0px -65% 0px" });
   for (const id of byId.keys()) {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
@@ -158,15 +169,21 @@ const readingStats = (raw) => {
 };
 
 const tagPills = (tags) =>
-  `<p class="flex flex-wrap gap-2">${tags.map((t) => `<span class="rounded-full border border-periwinkle px-2.5 py-1 font-mono text-[11px] tracking-wide text-deep-light dark:text-periwinkle">${esc(t)}</span>`).join("")}</p>`;
+  `<div class="flex flex-wrap gap-1.5">${tags
+    .map(
+      (t) =>
+        `<span class="inline-flex items-center rounded bg-periwinkle/15 px-2 py-0.5 font-mono text-[11px] font-medium text-deep-light dark:bg-periwinkle/10 dark:text-periwinkle">${esc(
+          t,
+        )}</span>`,
+    )
+    .join("")}</div>`;
 
-function layout({ title, description, body, isPost = false, outline = null }) {
+function layout({ title, description, body, isPost = false, hasOutline = false }) {
   const pageTitle = isPost ? `${title} · ${SITE.title}` : SITE.title;
-  // On article pages the outline is a second column (Outline / Prose).
-  // Everywhere else the single centred column is kept.
-  const mainClass = outline
-    ? "mx-auto max-w-6xl px-5 py-10 lg:grid lg:grid-cols-[16rem_minmax(0,44rem)] lg:justify-center lg:gap-12"
-    : "mx-auto max-w-2xl px-5 py-10";
+  const containerClass = hasOutline ? "max-w-5xl" : "max-w-2xl";
+  const mainClass = hasOutline
+    ? "mx-auto max-w-5xl px-6 py-12 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14"
+    : "mx-auto max-w-2xl px-6 py-12";
   return `<!doctype html>
 <html lang="id">
 <head>
@@ -178,28 +195,29 @@ ${THEME_INIT}
 ${FONT_LINK}
 <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-<header class="border-b border-mist/50 dark:border-deep-light/60">
-  <div class="mx-auto flex ${outline ? "max-w-6xl" : "max-w-2xl"} items-center justify-between px-5 py-5">
-    <a href="/" class="font-sans text-xl font-semibold tracking-tight text-deep decoration-periwinkle decoration-2 underline-offset-4 hover:underline dark:text-paper-soft">${esc(SITE.title)}</a>
-    <nav class="flex items-center gap-5">
-      <a href="/" class="font-sans text-sm font-bold tracking-widest text-deep uppercase decoration-periwinkle decoration-2 underline-offset-4 hover:underline dark:text-white">Blog</a>
-      <span aria-hidden="true" class="text-mist">|</span>
-      ${THEME_TOGGLE}
-    </nav>
-  </div>
-</header>
-<main class="${mainClass}">
+<body class="min-h-screen flex flex-col justify-between">
+<div>
+  <header class="border-b border-mist/20 dark:border-night-soft">
+    <div class="mx-auto flex ${containerClass} items-center justify-between px-6 py-5">
+      <a href="/" class="font-serif text-lg font-medium tracking-tight text-deep transition-colors hover:text-deep-light dark:text-paper-soft dark:hover:text-periwinkle">${esc(SITE.title)}</a>
+      <nav class="flex items-center gap-4">
+        <a href="/" class="font-sans text-xs font-medium tracking-wide text-mist-dim transition-colors hover:text-deep dark:text-mist dark:hover:text-paper-soft">Tulisan</a>
+        ${THEME_TOGGLE}
+      </nav>
+    </div>
+  </header>
+  <main class="${mainClass}">
 ${body}
-</main>
-<footer class="border-t border-mist/40 dark:border-deep-light/50">
-  <div class="mx-auto flex ${outline ? "max-w-6xl" : "max-w-2xl"} flex-col items-center gap-1 px-5 py-8 text-center">
-    <p class="font-serif text-base text-deep-muted dark:text-mist">${esc(SITE.title)} Blog</p>
-    <p class="font-mono text-xs text-mist-dim dark:text-mist">© ${new Date().getFullYear()} ${esc(SITE.title)}</p>
+  </main>
+</div>
+<footer class="border-t border-mist/20 dark:border-night-soft">
+  <div class="mx-auto flex ${containerClass} flex-col sm:flex-row items-center justify-between gap-3 px-6 py-8 text-xs text-mist dark:text-mist/80">
+    <p class="font-serif italic text-deep-muted/90 dark:text-silver/70">${esc(SITE.title)} — ${esc(SITE.tagline)}</p>
+    <p class="font-mono">© ${new Date().getFullYear()}</p>
   </div>
 </footer>
 ${THEME_SCRIPT}
-${outline ? OUTLINE_SCRIPT : ""}
+${hasOutline ? OUTLINE_SCRIPT : ""}
 </body>
 </html>
 `;
@@ -317,79 +335,129 @@ posts.sort((a, b) => b.date.localeCompare(a.date));
 // ---------- clean generated output ----------
 // Everything under public/ is generated by this build.
 for (const name of ["index.html", "404.html", "styles.css"]) {
-  fs.rmSync(path.join(PUBLIC, name), { force: true });
+  try {
+    fs.rmSync(path.join(PUBLIC, name), { force: true });
+  } catch {}
 }
 for (const dir of ["p", "posts", "images", "favicon"]) {
-  fs.rmSync(path.join(PUBLIC, dir), { recursive: true, force: true });
+  try {
+    fs.rmSync(path.join(PUBLIC, dir), { recursive: true, force: true });
+  } catch {}
   fs.mkdirSync(path.join(PUBLIC, dir), { recursive: true });
 }
 
 // ---------- index ----------
 const cards = posts
   .map(
-    (p) => `  <article>
-    <time datetime="${p.date}" class="font-mono text-xs tracking-wide text-mist-dim dark:text-mist">${p.date}</time>
-    <h2 class="mt-3 font-serif text-3xl font-semibold tracking-tight text-deep dark:text-paper-soft">
-      <a href="/p/${p.slug}" class="decoration-periwinkle decoration-2 underline-offset-4 hover:underline">${esc(p.title)}</a>
-    </h2>
-    ${p.description ? `<p class="mt-2 leading-relaxed text-deep-muted dark:text-silver/80">${esc(p.description)}</p>` : ""}
-    <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      ${p.tags.length ? tagPills(p.tags) : ""}
-      <span class="font-mono text-xs text-mist-dim dark:text-mist">${p.words.toLocaleString("id-ID")} kata · ${p.minutes} mnt baca</span>
-    </div>
-    <a href="/p/${p.slug}" class="mt-3 inline-block font-mono text-sm font-medium text-deep-light underline decoration-periwinkle decoration-2 underline-offset-4 hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">Baca tulisan <span aria-hidden="true">→</span></a>
-  </article>`,
+    (p) => `    <article class="group relative py-7 first:pt-2 last:pb-2">
+      <div class="flex items-center gap-2 font-mono text-xs text-mist-dim dark:text-mist">
+        <time datetime="${p.date}">${fmtDate(p.date)}</time>
+        <span aria-hidden="true" class="text-mist/40 dark:text-mist/30">·</span>
+        <span>${p.minutes} mnt baca</span>
+      </div>
+      <h2 class="mt-2 font-serif text-2xl font-medium tracking-tight text-deep transition-colors duration-150 group-hover:text-deep-light dark:text-paper-soft dark:group-hover:text-periwinkle">
+        <a href="/p/${p.slug}">
+          <span class="absolute -inset-x-3 -inset-y-2 rounded-lg transition-colors group-hover:bg-mist/5 dark:group-hover:bg-night-soft/40 sm:-inset-x-4"></span>
+          <span class="relative">${esc(p.title)}</span>
+        </a>
+      </h2>
+      ${p.description ? `<p class="relative mt-2 font-sans text-sm leading-relaxed text-deep-muted dark:text-silver/80">${esc(p.description)}</p>` : ""}
+      ${p.tags.length ? `<div class="relative mt-3">${tagPills(p.tags)}</div>` : ""}
+    </article>`,
   )
-  .join("\n  <hr class=\"my-10 border-mist/50 dark:border-deep-light/60\" />\n");
+  .join("\n");
 
 fs.writeFileSync(
   path.join(PUBLIC, "index.html"),
   layout({
     title: SITE.title,
     description: SITE.description,
-    body: `  <h1 class="font-serif text-5xl font-semibold tracking-tight text-deep dark:text-paper-soft">Halo!</h1>
-  <p class="mt-4 font-serif text-xl leading-relaxed text-deep-muted italic dark:text-silver/85">${esc(SITE.tagline)}</p>
-  <div class="mt-14">
-${cards || '  <p class="text-deep-muted dark:text-silver/80">Belum ada tulisan. Tambah file <code>.md</code> di folder <code>contents/</code> buat mulai.</p>'}
-  </div>`,
+    body: `  <section class="pb-10 pt-2">
+    <h1 class="font-serif text-3xl font-medium tracking-tight text-deep sm:text-4xl dark:text-paper-soft">
+      ${esc(SITE.title)}
+    </h1>
+    <p class="mt-2 font-serif text-lg leading-relaxed text-deep-muted italic dark:text-silver/80">
+      ${esc(SITE.tagline)}
+    </p>
+  </section>
+  <section>
+    <div class="mb-2 flex items-center justify-between border-b border-mist/20 pb-3 dark:border-night-soft">
+      <span class="font-mono text-xs font-medium tracking-wide text-mist-dim dark:text-mist">Semua tulisan</span>
+      <span class="font-mono text-xs text-mist-dim/80 dark:text-mist/70">${posts.length} catatan</span>
+    </div>
+    <div class="divide-y divide-mist/15 dark:divide-night-soft">
+${cards || '      <p class="py-8 text-sm text-deep-muted dark:text-silver/80">Belum ada tulisan. Tambah file <code>.md</code> di folder <code>contents/</code> buat mulai.</p>'}
+    </div>
+  </section>`,
   }),
 );
 
 // ---------- post pages ----------
 for (const p of posts) {
-  const outlineNav = p.outline.length
-    ? `<nav aria-label="Daftar isi artikel" class="mt-8">
-        <p class="font-mono text-xs font-medium tracking-widest text-mist-dim uppercase dark:text-mist">Outline</p>
-        <ul class="mt-3 space-y-0.5 text-sm">
-${p.outline.map((o) => `          <li><a data-outline-link href="#${o.id}" class="outline-link block py-1.5 pr-2 text-deep-muted transition-colors hover:text-deep dark:text-silver/75 dark:hover:text-paper-soft ${o.depth === 3 ? "pl-6" : "pl-3"}">${esc(o.text)}</a></li>`).join("\n")}
+  const hasOutline = p.outline.length > 0;
+  const outlineNav = hasOutline
+    ? `<nav aria-label="Daftar isi artikel" class="mt-6 border-l border-mist/20 pl-3 dark:border-night-soft">
+        <p class="font-mono text-xs font-medium tracking-wider text-mist-dim uppercase dark:text-mist">Daftar Isi</p>
+        <ul class="mt-3 space-y-1 text-xs">
+${p.outline.map((o) => `          <li><a data-outline-link href="#${o.id}" class="outline-link block py-1 pr-2 text-deep-muted transition-colors hover:text-deep dark:text-silver/75 dark:hover:text-paper-soft ${o.depth === 3 ? "pl-3" : ""}">${esc(o.text)}</a></li>`).join("\n")}
         </ul>
       </nav>`
     : "";
-  const rail = `<aside class="mb-10 lg:sticky lg:top-24 lg:mb-0 lg:self-start">
-    <a href="/" class="font-mono text-sm font-medium text-deep-light underline decoration-periwinkle decoration-2 underline-offset-4 hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft"><span aria-hidden="true">←</span> Semua tulisan</a>
-    <dl class="mt-8 space-y-3 font-mono text-[13px] lg:mt-10">
-      <div><dt class="text-mist-dim dark:text-mist">Terbit</dt><dd class="mt-0.5 text-deep dark:text-paper-soft"><time datetime="${p.date}">${p.date} · ${fmtDate(p.date)}</time></dd></div>
-      <div><dt class="text-mist-dim dark:text-mist">Jumlah kata</dt><dd class="mt-0.5 text-deep dark:text-paper-soft">${p.words.toLocaleString("id-ID")} kata</dd></div>
-      <div><dt class="text-mist-dim dark:text-mist">Waktu baca</dt><dd class="mt-0.5 text-deep dark:text-paper-soft">${p.minutes} mnt · ~66–75 karakter/baris</dd></div>
-    </dl>
-    ${outlineNav ? `<details class="mt-10 lg:hidden"><summary class="cursor-pointer font-mono text-xs font-medium tracking-widest text-mist-dim uppercase dark:text-mist">Outline artikel</summary>${outlineNav}</details><div class="hidden lg:block">${outlineNav}</div>` : ""}
-  </aside>`;
+
+  const rail = hasOutline
+    ? `<aside class="mb-10 lg:sticky lg:top-20 lg:mb-0 lg:self-start">
+    <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">
+      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+      <span>Semua tulisan</span>
+    </a>
+    <div class="mt-6 hidden lg:block">
+      ${outlineNav}
+    </div>
+    <details class="mt-6 lg:hidden">
+      <summary class="cursor-pointer font-mono text-xs font-medium text-mist-dim dark:text-mist">Daftar isi artikel</summary>
+      ${outlineNav}
+    </details>
+  </aside>`
+    : `<div class="mb-8">
+    <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">
+      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+      <span>Semua tulisan</span>
+    </a>
+  </div>`;
+
   fs.writeFileSync(
     path.join(PUBLIC, "p", p.slug + ".html"),
     layout({
       title: p.title,
       description: p.description || SITE.description,
       isPost: true,
-      outline: p.outline,
+      hasOutline,
       body: `${rail}
   <article>
-    ${p.tags.length ? tagPills(p.tags) : ""}
-    <h1 class="mt-4 font-serif text-4xl leading-tight font-semibold tracking-tight text-deep sm:text-5xl dark:text-paper-soft">${esc(p.title)}</h1>
-    <p class="mt-3 font-mono text-[13px] text-mist-dim dark:text-mist"><time datetime="${p.date}">${fmtDate(p.date)}</time> · ${p.minutes} mnt baca</p>
-    ${p.description ? `<p class="mt-5 border-l-2 border-periwinkle pl-4 font-serif text-xl leading-relaxed text-deep-muted italic dark:text-silver/85">${esc(p.description)}</p>` : ""}
-    <div class="article-prose prose mt-10 max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-pre:rounded-xl prose-img:mx-auto prose-img:rounded-xl">
+    <header class="mb-10">
+      <div class="flex flex-wrap items-center gap-2 font-mono text-xs text-mist-dim dark:text-mist">
+        <time datetime="${p.date}">${fmtDate(p.date)}</time>
+        <span aria-hidden="true" class="text-mist/40 dark:text-mist/30">·</span>
+        <span>${p.minutes} mnt baca</span>
+        <span aria-hidden="true" class="text-mist/40 dark:text-mist/30">·</span>
+        <span>${p.words.toLocaleString("id-ID")} kata</span>
+      </div>
+      <h1 class="mt-3 font-serif text-3xl font-medium tracking-tight text-deep sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15] dark:text-paper-soft">${esc(p.title)}</h1>
+      ${p.tags.length ? `<div class="mt-4">${tagPills(p.tags)}</div>` : ""}
+      ${p.description ? `<p class="mt-6 border-l-2 border-periwinkle py-1 pl-4 font-serif text-lg leading-relaxed text-deep-muted italic dark:text-silver/85">${esc(p.description)}</p>` : ""}
+    </header>
+    <div class="article-prose prose max-w-none prose-headings:font-serif prose-headings:tracking-tight prose-pre:rounded-xl prose-img:mx-auto prose-img:rounded-xl">
 ${p.html}
     </div>
+    <footer class="mt-16 border-t border-mist/20 pt-8 dark:border-night-soft">
+      <div class="flex items-center justify-between">
+        <a href="/" class="group inline-flex items-center gap-1.5 font-mono text-xs font-medium text-deep-light transition-colors hover:text-deep dark:text-periwinkle dark:hover:text-paper-soft">
+          <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+          <span>Kembali ke beranda</span>
+        </a>
+        <span class="font-serif text-xs italic text-mist-dim dark:text-mist">${esc(SITE.title)}</span>
+      </div>
+    </footer>
   </article>`,
     }),
   );
@@ -401,11 +469,17 @@ fs.writeFileSync(
   layout({
     title: "404",
     description: "Halaman tidak ditemukan",
-    body: `  <div class="py-16 text-center">
-    <p class="font-mono text-sm tracking-widest text-mist-dim uppercase dark:text-mist">Error 404</p>
-    <h1 class="mt-4 font-serif text-4xl font-semibold tracking-tight text-deep dark:text-paper-soft">404 — Nyasar?</h1>
-    <p class="mt-3 text-deep-muted dark:text-silver/80">Halaman yang kamu cari tidak ada (atau sudah dimakan).</p>
-    <a href="/" class="mt-6 inline-block rounded-full bg-deep px-5 py-2.5 text-sm font-medium text-paper-soft hover:bg-deep-light dark:bg-periwinkle dark:text-ink dark:hover:bg-paper-soft"><span aria-hidden="true">←</span> Balik ke beranda</a>
+    hasOutline: false,
+    body: `  <div class="py-20 text-center">
+    <p class="font-mono text-xs tracking-widest text-mist-dim uppercase dark:text-mist">404</p>
+    <h1 class="mt-3 font-serif text-3xl sm:text-4xl font-medium tracking-tight text-deep dark:text-paper-soft">Halaman tidak ditemukan</h1>
+    <p class="mt-3 text-sm leading-relaxed text-deep-muted dark:text-silver/80">Halaman yang kamu cari mungkin sudah berpindah atau belum ditulis.</p>
+    <div class="mt-8">
+      <a href="/" class="group inline-flex items-center gap-2 rounded-lg border border-mist/30 px-4 py-2 font-mono text-xs font-medium text-deep transition-colors hover:border-periwinkle hover:text-deep-light dark:border-night-soft dark:text-silver dark:hover:border-periwinkle dark:hover:text-paper-soft">
+        <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+        <span>Kembali ke beranda</span>
+      </a>
+    </div>
   </div>`,
   }),
 );

@@ -8,8 +8,7 @@
 /*
   Design tokens from the `ink & thought` PRD (section 3.1 / 5).
   Chosen for luminance contrast so protanopia / deuteranopia / tritanopia
-  readers don't have to rely on hue alone. Status & active states in this
-  theme always pair colour with a text label, weight, or border change.
+  readers don't have to rely on hue alone.
 */
 @theme {
   --color-periwinkle: #b2abf2;
@@ -45,12 +44,7 @@ html {
 }
 
 body {
-  @apply bg-paper font-sans text-ink antialiased dark:bg-night dark:text-silver;
-}
-
-::selection {
-  background: var(--color-periwinkle);
-  color: var(--color-ink);
+  @apply bg-paper font-sans text-ink antialiased selection:bg-periwinkle selection:text-ink dark:bg-night dark:text-silver;
 }
 
 :focus-visible {
@@ -58,17 +52,28 @@ body {
   outline-offset: 3px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ----- Editorial prose (the article itself) ----- */
 .article-prose {
   font-family: var(--font-serif);
-  font-size: 1.1875rem; /* PRD: Newsreader 19px / 1.75 */
-  line-height: 1.75;
-  letter-spacing: -0.005em;
+  font-size: 1.1875rem; /* Newsreader 19px / 1.8 */
+  line-height: 1.8;
+  letter-spacing: -0.003em;
 
   --tw-prose-body: #101d29;
   --tw-prose-headings: #1c3041;
   --tw-prose-lead: #3a546c;
-  --tw-prose-links: #2c4a63;
+  --tw-prose-links: #1c3041;
   --tw-prose-bold: #1c3041;
   --tw-prose-counters: #5d7285;
   --tw-prose-bullets: #b2abf2;
@@ -78,63 +83,84 @@ body {
   --tw-prose-captions: #5d7285;
   --tw-prose-code: #89043d;
   --tw-prose-pre-code: #edf4ff;
-  --tw-prose-pre-bg: #1c3041;
-  --tw-prose-th-borders: #7d8ea3;
-  --tw-prose-td-borders: #7d8ea3;
+  --tw-prose-pre-bg: #060f17;
+  --tw-prose-th-borders: #cbd6e2;
+  --tw-prose-td-borders: #cbd6e2;
 }
 
 .dark .article-prose {
-    --tw-prose-body: #cbd6e2;
-    --tw-prose-headings: #edf4ff;
-    --tw-prose-lead: #cbd6e2;
-    --tw-prose-links: #b2abf2;
-    --tw-prose-bold: #edf4ff;
-    --tw-prose-counters: #7d8ea3;
-    --tw-prose-bullets: #b2abf2;
-    --tw-prose-hr: #2c4a63;
-    --tw-prose-quotes: #cbd6e2;
-    --tw-prose-quote-borders: #b2abf2;
-    --tw-prose-captions: #7d8ea3;
-    --tw-prose-code: #f26ba1;
-    --tw-prose-pre-code: #edf4ff;
-    --tw-prose-pre-bg: #060f17;
-    --tw-prose-th-borders: #2c4a63;
-    --tw-prose-td-borders: #2c4a63;
-  }
-
-.article-prose :where(h2, h3) {
-  scroll-margin-top: 6rem;
+  --tw-prose-body: #cbd6e2;
+  --tw-prose-headings: #edf4ff;
+  --tw-prose-lead: #cbd6e2;
+  --tw-prose-links: #edf4ff;
+  --tw-prose-bold: #edf4ff;
+  --tw-prose-counters: #7d8ea3;
+  --tw-prose-bullets: #b2abf2;
+  --tw-prose-hr: #1a2430;
+  --tw-prose-quotes: #cbd6e2;
+  --tw-prose-quote-borders: #b2abf2;
+  --tw-prose-captions: #7d8ea3;
+  --tw-prose-code: #f26ba1;
+  --tw-prose-pre-code: #edf4ff;
+  --tw-prose-pre-bg: #060f17;
+  --tw-prose-th-borders: #1a2430;
+  --tw-prose-td-borders: #1a2430;
 }
 
-/* Code follows the PRD mono scale (13-14px), not the 19px prose size.
-   Use rem so it stays at that absolute scale regardless of prose size. */
+.article-prose :where(h2, h3) {
+  scroll-margin-top: 5rem;
+}
+
 .article-prose :where(pre) {
   font-size: 0.875rem; /* 14px */
   line-height: 1.65;
+  border: 1px solid rgba(125, 142, 163, 0.2);
+}
+
+.dark .article-prose :where(pre) {
+  border-color: rgba(26, 36, 48, 0.8);
 }
 
 .article-prose :where(:not(pre) > code) {
-  font-size: 0.8125rem; /* 13px inline */
+  font-size: 0.85em;
+  font-family: var(--font-mono);
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--color-deep) 6%, transparent);
+}
+
+.dark .article-prose :where(:not(pre) > code) {
+  background: color-mix(in srgb, var(--color-night-soft) 80%, transparent);
 }
 
 .article-prose a {
   text-decoration-color: var(--color-periwinkle);
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 4px;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.article-prose a:hover {
+  text-decoration-color: var(--color-deep);
+}
+
+.dark .article-prose a:hover {
+  text-decoration-color: var(--color-paper-soft);
 }
 
 /* ----- Outline (table of contents) ----- */
 .outline-link {
   border-left: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .outline-active {
   border-left-color: var(--color-periwinkle);
-  background: color-mix(in srgb, var(--color-periwinkle) 14%, transparent);
   color: var(--color-deep);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .dark .outline-active {
+  border-left-color: var(--color-periwinkle);
   color: var(--color-paper-soft);
 }
