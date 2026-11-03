@@ -349,20 +349,19 @@ for (const dir of ["p", "posts", "images", "favicon"]) {
 // ---------- index ----------
 const cards = posts
   .map(
-    (p) => `    <article class="group relative py-7 first:pt-2 last:pb-2">
+    (p) => `    <article class="group py-7 first:pt-3 last:pb-3">
       <div class="flex items-center gap-2 font-mono text-xs text-mist-dim dark:text-mist">
         <time datetime="${p.date}">${fmtDate(p.date)}</time>
         <span aria-hidden="true" class="text-mist/40 dark:text-mist/30">·</span>
         <span>${p.minutes} mnt baca</span>
       </div>
-      <h2 class="mt-2 font-serif text-2xl font-medium tracking-tight text-deep transition-colors duration-150 group-hover:text-deep-light dark:text-paper-soft dark:group-hover:text-periwinkle">
-        <a href="/p/${p.slug}">
-          <span class="absolute -inset-x-3 -inset-y-2 rounded-lg transition-colors group-hover:bg-mist/5 dark:group-hover:bg-night-soft/40 sm:-inset-x-4"></span>
-          <span class="relative">${esc(p.title)}</span>
+      <h2 class="mt-2 font-serif text-2xl font-medium tracking-tight text-deep dark:text-paper-soft">
+        <a href="/p/${p.slug}" class="transition-colors duration-150 hover:text-deep-light dark:hover:text-periwinkle">
+          ${esc(p.title)}
         </a>
       </h2>
-      ${p.description ? `<p class="relative mt-2 font-sans text-sm leading-relaxed text-deep-muted dark:text-silver/80">${esc(p.description)}</p>` : ""}
-      ${p.tags.length ? `<div class="relative mt-3">${tagPills(p.tags)}</div>` : ""}
+      ${p.description ? `<p class="mt-2 font-sans text-sm leading-relaxed text-deep-muted dark:text-silver/80">${esc(p.description)}</p>` : ""}
+      ${p.tags.length ? `<div class="mt-3">${tagPills(p.tags)}</div>` : ""}
     </article>`,
   )
   .join("\n");
